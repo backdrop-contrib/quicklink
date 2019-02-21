@@ -5,52 +5,116 @@
  * Contains quicklink.module.
  */
 
-use Drupal\node\NodeInterface;
+/**
+ * Implements hook_menu().
+ */
+function quicklink_menu() {
+  $items['admin/config/development/performance/quicklink'] = array(
+    'title' => 'Quicklink settings',
+    'description' => 'Pass configuration to the Quicklink library to prefetch links.',
+    'page callback' => 'backdrop_get_form',
+    'page arguments' => array('quicklink_settings'),
+    'access arguments' => array('administer quicklink'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'quicklink.admin.inc',
+  );
+
+  return $items;
+}
 
 /**
- * Implements hook_library_info_build().
+ * Implements hook_permission().
  */
-function quicklink_library_info_build() {
-  $libraries = [];
+function quicklink_permission() {
+  return array(
+    'administer quicklink' => array(
+      'title' => t('Administer Quicklink'),
+      'description' => t('Configure quicklink settings.'),
+    ),
+  );
+}
 
-  if (file_exists(DRUPAL_ROOT . '/libraries/quicklink/dist/quicklink.umd.js')) {
-    $libraries['quicklink'] = [
-      'js' => [
-        '/libraries/quicklink/dist/quicklink.umd.js' => ['minified' => TRUE, 'weight'=> -20],
-      ]
-    ];
-  }
-  else {
-    $libraries['quicklink'] = [
-      'js' => [
-        'https://unpkg.com/quicklink@1.0.0/dist/quicklink.umd.js' => ['minified' => TRUE, 'type' => 'external', 'weight'=> -20],
-      ]
-    ];
-  }
+/**
+ * Implements hook_config_info().
+ */
+function quicklink_config_info() {
+  $prefixes['quicklink.settings'] = array(
+    'label' => t('Quicklink Settings'),
+    'group' => t('Configuration'),
+  );
+
+  return $prefixes;
+}
+
+/**
+ * Implements hook_library_info().
+ */
+function quicklink_library_info() {
+  $libraries = array();
+
+  $libraries['quicklink'] = array(
+    'title' => 'Quicklink',
+    'version' => '1.0.0',
+    'js' => array(
+      'https://unpkg.com/quicklink@1.0.0/dist/quicklink.umd.js' => array(
+        'minified' => TRUE,
+        'type' => 'external',
+        'weight' => -20
+      ),
+    ),
+  );
+
+  $libraries['quicklink_init'] = array(
+    'title' => 'Quicklink init',
+    'version' => '1.0.0',
+    'js' => array(
+      backdrop_get_path('module', 'quicklink') . '/js/quicklink_init.js' => array('weight' => -10),
+    ),
+    'css' => array(
+      backdrop_get_path('module', 'quicklink') . '/css/quicklink-debug.css' => array(
+        'type' => 'file',
+        'media' => 'screen',
+      ),
+    ),
+  );
+
+  $libraries['quicklink_polyfill'] = array(
+    'title' => 'Polyfill',
+    'version' => '2',
+    'js' => array(
+      'https://polyfill.io/v2/polyfill.min.js?features=IntersectionObserver' => array(
+        'minified' => TRUE,
+        'type' => 'external',
+        'weight' => -100
+      ),
+    ),
+  );
+
   return $libraries;
 }
 
 /**
- * Implements hook_preprocess_html().
+ * Implements hook_preprocess_layout().
+ *
+ * Insert JavaScript to the appropriate scope/region of the page.
  */
-function quicklink_preprocess_html(&$variables, $hook) {
-
+function quicklink_preprocess_layout(&$variables) {
   // Load current configuration.
-  $config = \Drupal::config('quicklink.settings');
+  $config = config('quicklink.settings');
   $selector = $config->get('selector');
 
   // Get debug variable.
   $debug = $config->get('enable_debug_mode');
-  $debug_log = [];
+  $debug_log = array();
 
   // Load the library unless we disable later.
   $load_library = TRUE;
 
   // Always ignore the logout link.
-  $url_patterns_to_ignore = ['user/logout'];
+  $url_patterns_to_ignore = array('user/logout');
   $debug_log[] = 'Quicklink will ignore "user/logout" URL pattern.';
 
-  $allowed_domains = [];
+  $allowed_domains = array();
 
   // Populate and remove line returns from URL patterns to ignore.
   foreach (explode(PHP_EOL, $config->get('url_patterns_to_ignore')) as $value) {
@@ -92,6 +156,7 @@ function quicklink_preprocess_html(&$variables, $hook) {
     $debug_log[] = 'Quicklink will ignore admin URL patterns.';
   }
 
+/*
   // Check for "Content Types" option.
   $nodes = array_filter(
     \Drupal::routeMatch()->getParameters()->all(),
@@ -111,6 +176,7 @@ function quicklink_preprocess_html(&$variables, $hook) {
       $debug_log[] = 'Library not loaded because content type "' . $node_type . '" is specified to not load library.';
     }
   }
+*/
 
   // If user is logged in AND "Prefetch for anonymous users only" is selected,
   // do not load library.
@@ -121,52 +187,51 @@ function quicklink_preprocess_html(&$variables, $hook) {
 
   // Disable the library when a session is started.
   if ($config->get('no_load_when_session')) {
-    /** @var \Drupal\Core\Session\SessionManager $session */
-    $session = \Drupal::getContainer()->get('session_manager');
-    if (!empty($session) && $session->isStarted()) {
+    if (!empty($_SESSION)) {
       $load_library = FALSE;
       $debug_log[] = 'Library not loaded because PHP session is started.';
     }
   }
 
-  $variables['#attached']['library'][] = 'quicklink/quicklink_init';
-  $variables['#attached']['drupalSettings']['quicklink']['ignore_admin_paths'] = $config->get('ignore_admin_paths');
-  $variables['#attached']['drupalSettings']['quicklink']['ignore_ajax_links'] = $config->get('ignore_ajax_links');
-  $variables['#attached']['drupalSettings']['quicklink']['ignore_file_ext'] = $config->get('ignore_file_ext');
-  $variables['#attached']['drupalSettings']['quicklink']['debug'] = $debug;
+  backdrop_add_library('quicklink', 'quicklink_init');
+  $quicklink_settings['ignore_admin_paths'] = $config->get('ignore_admin_paths');
+  $quicklink_settings['ignore_ajax_links'] = $config->get('ignore_ajax_links');
+  $quicklink_settings['ignore_file_ext'] = $config->get('ignore_file_ext');
+  $quicklink_settings['debug'] = $debug;
 
   if (!empty($url_patterns_to_ignore[0])) {
-    $variables['#attached']['drupalSettings']['quicklink']['url_patterns_to_ignore'] = $url_patterns_to_ignore;
+    $quicklink_settings['url_patterns_to_ignore'] = $url_patterns_to_ignore;
     $debug_log['url_patterns_to_ignore'][] = $url_patterns_to_ignore;
   }
 
   if (!empty($selector)) {
-    $variables['#attached']['drupalSettings']['quicklink']['selector'] = $selector;
+    $quicklink_settings['selector'] = $selector;
     $debug_log[] = 'Selector for Quicklink to parse: ' . $selector;
   }
 
   if (!empty($allowed_domains[0])) {
-    $variables['#attached']['drupalSettings']['quicklink']['allowed_domains'] = $allowed_domains;
+    $quicklink_settings['allowed_domains'] = $allowed_domains;
     $debug_log['allowed_domains'][] = $allowed_domains;
   }
 
   if (!empty($prefetch_only_paths[0])) {
-    $variables['#attached']['drupalSettings']['quicklink']['prefetch_only_paths'] = $prefetch_only_paths;
+    $quicklink_settings['prefetch_only_paths'] = $prefetch_only_paths;
     $debug_log['prefetch_only_paths'][] = $prefetch_only_paths;
   }
 
   if ($load_library) {
     if ($config->get('load_polyfill') == 1) {
-      $variables['#attached']['library'][] = 'quicklink/quicklink_polyfill';
+      backdrop_add_library('quicklink', 'quicklink_polyfill');
       $debug_log[] = 'Intersection Observer polyfill library loaded';
     }
 
-    $variables['#attached']['library'][] = 'quicklink/quicklink';
+    backdrop_add_library('quicklink', 'quicklink');
   }
 
   if ($debug) {
-    $variables['#attached']['drupalSettings']['quicklink']['debug'] = 1;
-    $variables['#attached']['library'][] = 'quicklink/quicklink_debug';
-    $variables['#attached']['drupalSettings']['quicklink']['debug_log'] = $debug_log;
+    $quicklink_settings['debug'] = 1;
+    backdrop_add_library('quicklink', 'quicklink_debug');
+    $quicklink_settings['debug_log'] = $debug_log;
   }
+  backdrop_add_js(array('quicklink' => $quicklink_settings), 'setting');
 }

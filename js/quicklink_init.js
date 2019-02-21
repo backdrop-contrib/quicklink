@@ -1,23 +1,23 @@
 'use strict';
 
 (function () {
-  Drupal.behaviors.quicklink = {
+  Backdrop.behaviors.quicklink = {
     'attach': function attachQuicklink(context, settings) {
 
-      var debug = settings.quicklink.debug;
+      var debug = Backdrop.settings.quicklink.debug;
 
       function hydrateQuicklinkConfig() {
-        settings.quicklink.quicklinkConfig = settings.quicklink.quicklinkConfig || {};
-        settings.quicklink.ignoredSelectorsLog = settings.quicklink.ignoredSelectorsLog || [];
+        Backdrop.settings.quicklink.quicklinkConfig = Backdrop.settings.quicklink.quicklinkConfig || {};
+        Backdrop.settings.quicklink.ignoredSelectorsLog = Backdrop.settings.quicklink.ignoredSelectorsLog || [];
 
-        var quicklinkConfig = settings.quicklink.quicklinkConfig;
-        var ignoredSelectorsLog = settings.quicklink.ignoredSelectorsLog;
+        var quicklinkConfig = Backdrop.settings.quicklink.quicklinkConfig;
+        var ignoredSelectorsLog = Backdrop.settings.quicklink.ignoredSelectorsLog;
 
         quicklinkConfig.ignores = [];
 
-        // Loop through all the patters to ignore, and generate rules to ignore URL patterns.
-        for (var i = 0; i < settings.quicklink.url_patterns_to_ignore.length; i++) {
-          var pattern = settings.quicklink.url_patterns_to_ignore[i];
+        // Loop through all the patterns to ignore, and generate rules to ignore URL patterns.
+        for (var i = 0; i < Backdrop.settings.quicklink.url_patterns_to_ignore.length; i++) {
+          var pattern = Backdrop.settings.quicklink.url_patterns_to_ignore[i];
 
           (function(i, pattern) {
             if (pattern.length) {
@@ -33,10 +33,10 @@
           })(i, pattern);
         }
 
-        if (settings.quicklink.ignore_admin_paths) {
+        if (Backdrop.settings.quicklink.ignore_admin_paths) {
           quicklinkConfig.ignores.push(function (uri, elem) {
             var ruleName = 'Exists in admin element container.';
-            var ruleFunc = elem.matches('#block-local-tasks-block a, .block-local-tasks-block a, #drupal-off-canvas a, #toolbar-administration a');
+            var ruleFunc = elem.matches('#admin-bar a, .contextual-links-wrapper a');
 
             outputDebugInfo(ruleFunc, ruleName, uri, elem);
 
@@ -44,7 +44,7 @@
           });
         }
 
-        if (settings.quicklink.ignore_ajax_links) {
+        if (Backdrop.settings.quicklink.ignore_ajax_links) {
           quicklinkConfig.ignores.push(function (uri, elem) {
             var ruleName = 'Link has "use-ajax" CSS class.';
             var ruleFunc = elem.classList.contains('use-ajax');
@@ -64,7 +64,7 @@
           });
         }
 
-        if (settings.quicklink.ignore_file_ext) {
+        if (Backdrop.settings.quicklink.ignore_file_ext) {
           quicklinkConfig.ignores.push(function (uri, elem) {
             var ruleName = 'Contains file extension at end of href.';
             var ruleFunc = uri.match(/\.[^\/]{1,4}$/);
@@ -93,8 +93,8 @@
           return ruleFunc;
         });
 
-        quicklinkConfig.origins = (settings.quicklink.allowed_domains) ? settings.quicklink.allowed_domains : false;
-        quicklinkConfig.urls = (settings.quicklink.prefetch_only_paths) ? settings.quicklink.prefetch_only_paths : false;
+        quicklinkConfig.origins = (Backdrop.settings.quicklink.allowed_domains) ? Backdrop.settings.quicklink.allowed_domains : false;
+        quicklinkConfig.urls = (Backdrop.settings.quicklink.prefetch_only_paths) ? Backdrop.settings.quicklink.prefetch_only_paths : false;
       }
 
       function outputDebugInfo(ruleFunc, ruleName, uri, elem, pattern) {
@@ -115,7 +115,7 @@
           if (pattern) thisLog.pattern = pattern;
 
           (function(thisLog) {
-            settings.quicklink.ignoredSelectorsLog.push(thisLog);
+            Backdrop.settings.quicklink.ignoredSelectorsLog.push(thisLog);
           })(thisLog);
         }
       }
@@ -131,17 +131,17 @@
         return window.quicklink && !noprefetch;
       }
 
-      if (!settings.quicklink.quicklinkConfig) hydrateQuicklinkConfig();
+      if (!Backdrop.settings.quicklink.quicklinkConfig) hydrateQuicklinkConfig();
 
-      settings.quicklink.quicklinkConfig.el = (settings.quicklink.selector) ? context.querySelector(settings.quicklink.selector) : context;
+      Backdrop.settings.quicklink.quicklinkConfig.el = (Backdrop.settings.quicklink.selector) ? context.querySelector(Backdrop.settings.quicklink.selector) : context;
 
       if (debug) {
-        console.info('Quicklink config object', settings.quicklink.quicklinkConfig);
-        console.info('Quicklink module debug log', settings.quicklink.debug_log);
-        console.info('Quicklink ignored selectors log', settings.quicklink.ignoredSelectorsLog);
+        console.info('Quicklink config object', Backdrop.settings.quicklink.quicklinkConfig);
+        console.info('Quicklink module debug log', Backdrop.settings.quicklink.debug_log);
+        console.info('Quicklink ignored selectors log', Backdrop.settings.quicklink.ignoredSelectorsLog);
       }
 
-      if (loadQuicklink()) quicklink(settings.quicklink.quicklinkConfig);
+      if (loadQuicklink()) quicklink(Backdrop.settings.quicklink.quicklinkConfig);
     },
   };
 })();

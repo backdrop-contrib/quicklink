@@ -1,0 +1,6 @@
+name = 'Quicklink'
+description: 'Installs Quicklink JS library to prefetch linked pages.'
+type = module
+backdrop = 1.x
+package = 'Performance'
+configure = 'admin/config/development/performance/quicklink'
