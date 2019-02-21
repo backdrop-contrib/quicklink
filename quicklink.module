@@ -9,13 +9,19 @@
  * Implements hook_menu().
  */
 function quicklink_menu() {
+  $items['admin/config/development/performance/default'] = array(
+    'title' => 'Performance',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'file path' => backdrop_get_path('module', 'system'),
+    'weight' => -10,
+  );
   $items['admin/config/development/performance/quicklink'] = array(
-    'title' => 'Quicklink settings',
+    'title' => 'Quicklink',
     'description' => 'Pass configuration to the Quicklink library to prefetch links.',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('quicklink_settings'),
     'access arguments' => array('administer quicklink'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_LOCAL_TASK,
     'file' => 'quicklink.admin.inc',
   );
 
