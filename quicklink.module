@@ -162,19 +162,9 @@ function quicklink_preprocess_layout(&$variables) {
     $debug_log[] = 'Quicklink will ignore admin URL patterns.';
   }
 
-/*
-  // Check for "Content Types" option.
-  $nodes = array_filter(
-    \Drupal::routeMatch()->getParameters()->all(),
-    function ($param) {
-      return $param instanceof NodeInterface;
-    }
-  );
-  // We can only deal with one node. We'll assume it's the first one.
-  $node = reset($nodes);
-
-  if (!empty($node)) {
-    $node_type = $node->bundle();
+  $node = menu_get_object();
+  if ($node instanceof Node) {
+    $node_type = $node->type;
     $no_load_content_types = $config->get('no_load_content_types');
 
     if (array_key_exists($node_type, $no_load_content_types) && $no_load_content_types[$node_type] !== 0) {
@@ -182,7 +172,6 @@ function quicklink_preprocess_layout(&$variables) {
       $debug_log[] = 'Library not loaded because content type "' . $node_type . '" is specified to not load library.';
     }
   }
-*/
 
   // If user is logged in AND "Prefetch for anonymous users only" is selected,
   // do not load library.
