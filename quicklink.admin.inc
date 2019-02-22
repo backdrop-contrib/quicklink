@@ -139,7 +139,7 @@ function quicklink_settings($form, $form_state) {
   $form['debug']['enable_debug_mode'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable debug mode'),
-    '#description' => t("Log Quicklink development information to the HTML and JavaScript console. You may need to clear Backdrop's cache after changing this value."),
+    '#description' => t("Log Quicklink development information to the HTML and JavaScript console."),
     '#default_value' => $config->get('enable_debug_mode'),
   );
 
