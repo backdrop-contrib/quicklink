@@ -163,7 +163,7 @@ function quicklink_settings($form, $form_state) {
  */
 function quicklink_settings_submit(&$form, $form_state) {
   $config = config('quicklink.settings');
-  $debug_mode = config_get('quicklink.settings', 'enable_debug_mode');
+  $debug_mode = $config->get('enable_debug_mode');
 
   $config->set('no_load_content_types', $form_state['values']['no_load_content_types'])
     ->set('selector', trim($form_state['values']['selector']))
