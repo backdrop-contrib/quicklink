@@ -139,7 +139,7 @@ function quicklink_settings($form, $form_state) {
   $form['debug']['enable_debug_mode'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable debug mode'),
-    '#description' => t("Log Quicklink development information to the HTML and JavaScript console. You may need to clear Backdrop's cache after changing this value."),
+    '#description' => t("Log Quicklink development information to the HTML and JavaScript console."),
     '#default_value' => $config->get('enable_debug_mode'),
   );
 
@@ -162,8 +162,8 @@ function quicklink_settings($form, $form_state) {
  * {@inheritdoc}
  */
 function quicklink_settings_submit(&$form, $form_state) {
-
   $config = config('quicklink.settings');
+  $debug_mode = $config->get('enable_debug_mode');
 
   $config->set('no_load_content_types', $form_state['values']['no_load_content_types'])
     ->set('selector', trim($form_state['values']['selector']))
@@ -179,4 +179,10 @@ function quicklink_settings_submit(&$form, $form_state) {
     ->set('load_polyfill', $form_state['values']['load_polyfill'])
     ->set('enable_debug_mode', $form_state['values']['enable_debug_mode'])
     ->save();
+
+  // Clear caches if debug mode has been enabled/disabled.
+  if ($debug_mode != $form_state['values']['enable_debug_mode']) {
+    cache_clear_all();
   }
+
+}
