@@ -5,6 +5,12 @@
  * Contains quicklink.admin.inc.
  */
 
+/**
+ * Quicklink settings form.
+ *
+ * @ingroup forms
+ * @see quicklink_settings_submit
+ */
 function quicklink_settings($form, $form_state) {
   $config = config('quicklink.settings');
 
@@ -159,7 +165,7 @@ function quicklink_settings($form, $form_state) {
 }
 
 /**
- * {@inheritdoc}
+ * Form submission handler for quicklink_settings.
  */
 function quicklink_settings_submit(&$form, $form_state) {
   $config = config('quicklink.settings');
