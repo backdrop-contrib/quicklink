@@ -47,7 +47,7 @@ function quicklink_settings($form, $form_state) {
     '#type' => 'checkbox',
     '#title' => t('Ignore paths with file extensions'),
     '#description' => t('Recommended. This will ignore links that end with a file extension.
-      It will match strings ending with a period followed by 1-4 characters.'),
+      It will match paths ending with a period followed by 1-5 characters. Querystrings are supported.'),
     '#default_value' => $config->get('ignore_file_ext'),
   );
   $form['ignore']['url_patterns_to_ignore'] = array(
