@@ -110,7 +110,7 @@ function quicklink_requirements($phase) {
       'title' => t('Quicklink debug mode'),
       'value' => t('Enabled'),
       'severity' => REQUIREMENT_WARNING,
-      'description' => t('When enabled, quicklink-related development information is loggen in the HTML and JavaScript console. This should be <a href="@url">disabled</a> on production.', array('@url' => url('admin/config/development/performance/quicklink', array('fragment' => 'edit-debug')))),
+      'description' => t('When enabled, Quicklink development information is logged to the JavaScript console and shown on the screen. This should be <a href="@url">disabled</a> on public sites.', array('@url' => url('admin/config/development/performance/quicklink', array('fragment' => 'edit-debug')))),
     );
   }
   return $requirements;
