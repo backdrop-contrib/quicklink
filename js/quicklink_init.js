@@ -67,7 +67,7 @@
         if (Backdrop.settings.quicklink.ignore_file_ext) {
           quicklinkConfig.ignores.push(function (uri, elem) {
             var ruleName = 'Contains file extension at end of href.';
-            var ruleFunc = uri.match(/\.[^\/]{1,4}$/);
+            var ruleFunc = uri.match(/(\.[^\/]{1,5}\?)|(\.[^\/]{1,5}$)/);
 
             outputDebugInfo(ruleFunc, ruleName, uri, elem);
 
