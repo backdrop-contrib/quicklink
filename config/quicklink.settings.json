@@ -3,6 +3,7 @@
   "no_load_when_authenticated": 1,
   "no_load_when_session": 1,
   "no_load_content_types": [],
+  "no_load_without_page_cache": 1,
   "ignore_admin_paths": 1,
   "ignore_hashes": 1,
   "ignore_ajax_links": 1,

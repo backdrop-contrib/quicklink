@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * Add new 'no_load_without_page_cache' variable.
+ */
+function quicklink_update_1000() {
+  $config = config('quicklink.settings');
+  $config->set('no_load_without_page_cache', 1);
+  $config->save();
+}

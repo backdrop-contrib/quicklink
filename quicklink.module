@@ -1,11 +1,6 @@
 <?php
 
 /**
- * @file
- * Contains quicklink.module.
- */
-
-/**
  * Implements hook_menu().
  */
 function quicklink_menu() {
@@ -88,7 +83,7 @@ function quicklink_library_info() {
     'title' => 'Polyfill',
     'version' => '2',
     'js' => array(
-      'https://polyfill.io/v2/polyfill.min.js?features=IntersectionObserver' => array(
+      'https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver%2CIntersectionObserverEntry%2CURL%2CObject.assign%2CArray.from%2CArray.prototype.includes%2CString.prototype.includes%2CElement.prototype.matches%2CPromise%2CPromise.prototype.finally' => array(
         'minified' => TRUE,
         'type' => 'external',
         'weight' => -100
@@ -107,6 +102,7 @@ function quicklink_library_info() {
 function quicklink_preprocess_layout(&$variables) {
   // Load current configuration.
   $config = config('quicklink.settings');
+  $settings = array();
   $selector = $config->get('selector');
 
   // Get debug variable.
@@ -159,58 +155,72 @@ function quicklink_preprocess_layout(&$variables) {
   if ($config->get('ignore_admin_paths') == 1) {
     $url_patterns_to_ignore[] = '/admin';
     $url_patterns_to_ignore[] = '/edit';
+
+    // If elements match these selector pattern, they will not be prefetched.
+    $admin_link_container_patterns = array('#admin-bar a', '.contextual-links-wrapper a', '#tabs a', '#navbar-administration');
+
+    $settings['admin_link_container_patterns'] = $admin_link_container_patterns;
     $debug_log[] = 'Quicklink will ignore admin URL patterns.';
   }
 
   $node = menu_get_object();
   if ($node instanceof Node) {
-    $node_type = $node->type;
     $no_load_content_types = $config->get('no_load_content_types');
 
-    if (array_key_exists($node_type, $no_load_content_types) && $no_load_content_types[$node_type] !== 0) {
+    if (in_array($node->type, $no_load_content_types) && $no_load_content_types[$node->type]) {
       $load_library = FALSE;
-      $debug_log[] = 'Library not loaded because content type "' . $node_type . '" is specified to not load library.';
+      $debug_log[] = 'Library not loaded because content type "' . $node->type . '" is specified to not load library.';
     }
   }
 
   // If user is logged in AND "Prefetch for anonymous users only" is selected,
   // do not load library.
-  if ($variables['logged_in'] && $config->get('no_load_when_authenticated') == 1) {
+  global $user;
+
+  if (isset($user) && $config->get('no_load_when_authenticated') == 1 && !empty($user->uid) && $user->uid >= 1) {
     $load_library = FALSE;
     $debug_log[] = 'Library not loaded because user is authenticated.';
   }
 
   // Disable the library when a session is started.
   if ($config->get('no_load_when_session')) {
-    if (!empty($_SESSION)) {
+    $session = backdrop_session_started();
+
+    if (!empty($session)) {
       $load_library = FALSE;
       $debug_log[] = 'Library not loaded because PHP session is started.';
     }
   }
 
+  // Disable the library if page caching is disabled.
+  if ($config->get('no_load_without_page_cache') && config_get('system.core', 'cache') == FALSE) {
+    $load_library = FALSE;
+    $debug_log[] = 'Library not loaded because Backdrop page caching is disabled.';
+  }
+
   backdrop_add_library('quicklink', 'quicklink_init');
-  $quicklink_settings['ignore_admin_paths'] = $config->get('ignore_admin_paths');
-  $quicklink_settings['ignore_ajax_links'] = $config->get('ignore_ajax_links');
-  $quicklink_settings['ignore_file_ext'] = $config->get('ignore_file_ext');
-  $quicklink_settings['debug'] = $debug;
+  $settings['ignore_admin_paths'] = $config->get('ignore_admin_paths');
+  $settings['ignore_ajax_links'] = $config->get('ignore_ajax_links');
+  $settings['ignore_file_ext'] = $config->get('ignore_file_ext');
+  $settings['debug'] = $debug;
 
   if (!empty($url_patterns_to_ignore[0])) {
-    $quicklink_settings['url_patterns_to_ignore'] = $url_patterns_to_ignore;
+    $settings['url_patterns_to_ignore'] = $url_patterns_to_ignore;
     $debug_log['url_patterns_to_ignore'][] = $url_patterns_to_ignore;
   }
 
   if (!empty($selector)) {
-    $quicklink_settings['selector'] = $selector;
+    $settings['selector'] = $selector;
     $debug_log[] = 'Selector for Quicklink to parse: ' . $selector;
   }
 
   if (!empty($allowed_domains[0])) {
-    $quicklink_settings['allowed_domains'] = $allowed_domains;
+    $settings['allowed_domains'] = $allowed_domains;
     $debug_log['allowed_domains'][] = $allowed_domains;
   }
 
   if (!empty($prefetch_only_paths[0])) {
-    $quicklink_settings['prefetch_only_paths'] = $prefetch_only_paths;
+    $settings['prefetch_only_paths'] = $prefetch_only_paths;
     $debug_log['prefetch_only_paths'][] = $prefetch_only_paths;
   }
 
@@ -224,9 +234,10 @@ function quicklink_preprocess_layout(&$variables) {
   }
 
   if ($debug) {
-    $quicklink_settings['debug'] = 1;
+    $settings['debug'] = 1;
     backdrop_add_library('quicklink', 'quicklink_debug');
-    $quicklink_settings['debug_log'] = $debug_log;
+    $settings['debug_log'] = $debug_log;
   }
-  backdrop_add_js(array('quicklink' => $quicklink_settings), 'setting');
+  backdrop_add_js(array('quicklink' => $settings), 'setting');
+  backdrop_add_js(backdrop_get_path('module', 'quicklink') . '/js/quicklink_init.js');
 }
