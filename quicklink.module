@@ -40,8 +40,8 @@ function quicklink_permission() {
  */
 function quicklink_config_info() {
   $prefixes['quicklink.settings'] = array(
-    'label' => t('Quicklink Settings'),
-    'group' => t('Configuration'),
+    'label' => t('Quicklink settings'),
+    'group' => t('Performance'),
   );
 
   return $prefixes;
@@ -92,6 +92,23 @@ function quicklink_library_info() {
   );
 
   return $libraries;
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function quicklink_requirements($phase) {
+  $debug_mode = config_get('quicklink.settings', 'enable_debug_mode');
+  $requirements = array();
+  if ($debug_mode) {
+    $requirements['quicklink'] = array(
+      'title' => t('Quicklink debug mode'),
+      'value' => t('Enabled'),
+      'severity' => REQUIREMENT_WARNING,
+      'description' => t('When enabled, Quicklink development information is logged to the JavaScript console and shown on the screen. This should be <a href="@url">disabled</a> on public sites.', array('@url' => url('admin/config/development/performance/quicklink', array('fragment' => 'edit-debug')))),
+    );
+  }
+  return $requirements;
 }
 
 /**

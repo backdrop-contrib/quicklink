@@ -3,4 +3,6 @@ description = 'Installs Quicklink JS library to prefetch linked pages.'
 type = module
 backdrop = 1.x
 package = 'Performance'
+tags[] = Performance
+tags[] = Scalability
 configure = 'admin/config/development/performance/quicklink'
