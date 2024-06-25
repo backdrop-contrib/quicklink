@@ -55,9 +55,9 @@ function quicklink_library_info() {
 
   $libraries['quicklink'] = array(
     'title' => 'Quicklink',
-    'version' => '1.0.0',
+    'version' => '1.0.1',
     'js' => array(
-      'https://unpkg.com/quicklink@1.0.0/dist/quicklink.umd.js' => array(
+      'https://unpkg.com/quicklink@1.0.1/dist/quicklink.umd.js' => array(
         'minified' => TRUE,
         'type' => 'external',
         'weight' => -20
@@ -83,7 +83,7 @@ function quicklink_library_info() {
     'title' => 'Polyfill',
     'version' => '2',
     'js' => array(
-      'https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver%2CIntersectionObserverEntry%2CURL%2CObject.assign%2CArray.from%2CArray.prototype.includes%2CString.prototype.includes%2CElement.prototype.matches%2CPromise%2CPromise.prototype.finally' => array(
+      'https://polyfill-fastly.io/v3/polyfill.min.js?features=IntersectionObserver%2CIntersectionObserverEntry%2CURL%2CObject.assign%2CArray.from%2CArray.prototype.includes%2CString.prototype.includes%2CElement.prototype.matches%2CPromise%2CPromise.prototype.finally' => array(
         'minified' => TRUE,
         'type' => 'external',
         'weight' => -100
