@@ -9,14 +9,14 @@ Quicklink:
 * Detects links within the viewport.
 * Waits until the browser is idle.
 * Checks if the user isn't on a slow connection or has data-saver enabled.
-* Prefetches URLs to the links (using <link rel=prefetch> or XHR). Provides some control over the request priority (can switch to fetch() if supported).
+* Prefetches URLs to the links (using `<link rel=prefetch>` or XHR). Provides some control over the request priority (can switch to fetch() if supported).
 
 ## Installation
 
 1. Download the Backdrop module and extract it to your modules folder.
 
 By default this module will load the Quicklink JavaScript library from a CDN at
-`https://unpkg.com/quicklink@1.0.0/dist/quicklink.umd.js`.
+`https://unpkg.com/quicklink@1.0.1/dist/quicklink.umd.js`.
 
 ## How do I access the Quicklink admin interface?
 
@@ -28,13 +28,12 @@ The Quicklink module admin interface is located at
 ## What browsers does this support?
 
 Without polyfills:
-Chrome, Firefox.
+Chrome, Firefox, Safari, and Edge.
 
 With [Intersection Observer polyfill](https://github.com/w3c/IntersectionObserver/tree/master/polyfill):
-Safari, Edge
+Internet Explorer.
 
-
-## How to ignore certain links.
+## How to ignore certain links
 
 You can tell Quicklink to ignore certain links by adding them into the ignore
 list at `admin/config/development/performance/quicklink`.
@@ -49,13 +48,13 @@ To submit bug reports and feature suggestions, or to track changes:
 
 ## Current Maintainers
 
-- Herb v/d Dool (https://github.com/herbdool/)
-- Seeking additional maintainers.
+* Herb v/d Dool (https://github.com/herbdool/)
+* Seeking additional maintainers.
 
 ## Credits
 
-- Ported to Backdrop by Herb v/d Dool (https://github.com/herbdool/)
-- Originally developed for Drupal by [mherchel](https://www.drupal.org/u/mherchel)
+* Ported to Backdrop by Herb v/d Dool (https://github.com/herbdool/)
+* Originally developed for Drupal by [mherchel](https://www.drupal.org/u/mherchel)
 
 ## License
 
