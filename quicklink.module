@@ -57,9 +57,8 @@ function quicklink_library_info() {
     'title' => 'Quicklink',
     'version' => '2.3.0',
     'js' => array(
-      'https://unpkg.com/quicklink@2.3.0/dist/quicklink.umd.js' => array(
+      backdrop_get_path('module', 'quicklink') . '/js/quicklink.umd.js' => array(
         'minified' => TRUE,
-        'type' => 'external',
         'weight' => -20
       ),
     ),
@@ -75,18 +74,6 @@ function quicklink_library_info() {
       backdrop_get_path('module', 'quicklink') . '/css/quicklink-debug.css' => array(
         'type' => 'file',
         'media' => 'screen',
-      ),
-    ),
-  );
-
-  $libraries['quicklink_polyfill'] = array(
-    'title' => 'Polyfill',
-    'version' => '2',
-    'js' => array(
-      'https://polyfill-fastly.io/v3/polyfill.min.js?features=IntersectionObserver%2CIntersectionObserverEntry%2CURL%2CObject.assign%2CArray.from%2CArray.prototype.includes%2CString.prototype.includes%2CElement.prototype.matches%2CPromise%2CPromise.prototype.finally' => array(
-        'minified' => TRUE,
-        'type' => 'external',
-        'weight' => -100
       ),
     ),
   );
@@ -265,11 +252,6 @@ function quicklink_preprocess_layout(&$variables) {
   }
 
   if ($load_library) {
-    if ($config->get('load_polyfill') == 1) {
-      backdrop_add_library('quicklink', 'quicklink_polyfill');
-      $debug_log[] = 'Intersection Observer polyfill library loaded';
-    }
-
     $settings['ignore_admin_paths'] = $config->get('ignore_admin_paths');
     $settings['ignore_ajax_links'] = $config->get('ignore_ajax_links');
     $settings['ignore_file_ext'] = $config->get('ignore_file_ext');

@@ -38,3 +38,12 @@ function quicklink_update_1001() {
     $config->set('ignore_selectors', '')->save();
   }
 }
+
+/**
+ * Remove polyfill.
+ */
+function quicklink_update_1002() {
+  $config = config('quicklink.settings');
+  $config->clear('load_polyfill');
+  $config->save();
+}

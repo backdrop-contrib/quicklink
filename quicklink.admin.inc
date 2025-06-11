@@ -215,20 +215,6 @@ function quicklink_settings($form, $form_state) {
     ),
   );
 
-  // Polyfill tab.
-  $form['polyfill'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Extended Browser Support'),
-    '#description' => t('Include support of additional browsers via polyfill.'),
-    '#group' => 'settings',
-  );
-  $form['polyfill']['load_polyfill'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Load <em>Intersection Observer</em> polyfill'),
-    '#description' => t('This checkbox will enable loading of necessary polyfills from <a href="https://polyfill.io" target="_blank">polyfill.io</a>. This will enable usage of Quicklink in IE11 and older versions modern browsers.'),
-    '#default_value' => $config->get('load_polyfill'),
-  );
-
   // Debug tab.
   $form['debug'] = array(
     '#type' => 'fieldset',
@@ -280,7 +266,6 @@ function quicklink_settings_submit(&$form, $form_state) {
     ->set('concurrency_throttle_limit', $form_state['values']['concurrency_throttle_limit'])
     ->set('viewport_delay', $form_state['values']['viewport_delay'])
     ->set('idle_wait_timeout', $form_state['values']['idle_wait_timeout'])
-    ->set('load_polyfill', $form_state['values']['load_polyfill'])
     ->set('enable_debug_mode', $form_state['values']['enable_debug_mode'])
     ->save();
 
