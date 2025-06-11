@@ -63,6 +63,15 @@ function quicklink_settings($form, $form_state) {
       'style' => 'max-width: 600px;',
     ),
   );
+  $form['ignore']['ignore_selectors'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Ignore these selectors (optional)'),
+    '#description' => t('Selectors that will not be prefected. Enter one value per line. Example: <code>.footer a</code>'),
+    '#default_value' => $config->get('ignore_selectors'),
+    '#attributes' => array(
+      'style' => 'max-width: 600px;',
+    ),
+  );
 
   // Overrides tab.
   $form['overrides'] = array(
@@ -88,16 +97,6 @@ function quicklink_settings($form, $form_state) {
     '#description' => t('List of domains to prefetch from. If empty, Quicklink will only prefetch links from the origin domain.
       If you configure this, be sure to input the origin domain. Add <code>true</code> here to allow <em>every</em> origin.'),
     '#default_value' => $config->get('allowed_domains'),
-    '#resizable' => FALSE,
-    '#attributes' => array(
-      'style' => 'max-width: 600px;',
-    ),
-  );
-  $form['overrides']['prefetch_only_paths'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Prefetch these paths only (overrides everything else)'),
-    '#description' => t('If enabled, will override other settings. <strong>Only these paths will be prefetched.</strong> Include the forward slash at the beginning of the path.'),
-    '#default_value' => $config->get('prefetch_only_paths'),
     '#resizable' => FALSE,
     '#attributes' => array(
       'style' => 'max-width: 600px;',
@@ -142,6 +141,78 @@ function quicklink_settings($form, $form_state) {
     '#type' => 'checkboxes',
     '#options' => $options,
     '#default_value' => $config->get('no_load_content_types'),
+  );
+
+  // Parameters tab.
+  $form['throttle_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Throttle Options'),
+    '#description' => t('On this tab, set parameters to adjust how Quicklink loads content.'),
+    '#group' => 'settings',
+  );
+  $form['throttle_options']['total_request_limit'] = array(
+    '#type' => 'number',
+    '#title' => t('Set request limit'),
+    '#description' => t('Enter the total number of requests that can be
+      prefetched for a given page. Set to 0 for unlimited. <br><em>Warning</em>: this may not
+      work when Concurrency Throttle is also enabled (see
+      <a href="https://github.com/GoogleChromeLabs/quicklink/issues/235">https://github.com/GoogleChromeLabs/quicklink/issues/235</a>.'),
+    '#maxlength' => 10,
+    '#size' => 10,
+    '#default_value' => $config->get('total_request_limit'),
+  );
+  $form['throttle_options']['concurrency_throttle_limit'] = array(
+    '#type' => 'number',
+    '#title' => t('Set concurrency throttle'),
+    '#description' => t('Enter a limit for the simultaneous requests that can be made while prefetching. Set to 0 for unlimited.'),
+    '#maxlength' => 10,
+    '#size' => 10,
+    '#default_value' => $config->get('concurrency_throttle_limit'),
+  );
+  $form['throttle_options']['viewport_delay'] = array(
+    '#type' => 'number',
+    '#title' => t('Viewport Delay'),
+    '#field_suffix' => t('ms'),
+    '#description' => t('Amount of time each link needs to stay inside the viewport before being prefetched. Default is 0 ms.'),
+    '#maxlength' => 10,
+    '#size' => 10,
+    '#default_value' => $config->get('viewport_delay'),
+  );
+  $form['throttle_options']['idle_wait_timeout'] = array(
+    '#type' => 'number',
+    '#title' => t('Set idle timeout value'),
+    '#field_suffix' => t('ms'),
+    '#description' => t('Amount of time the browser must be idle before prefetching, in milliseconds. Default is 2000 ms.'),
+    '#maxlength' => 10,
+    '#size' => 10,
+    '#default_value' => $config->get('idle_wait_timeout'),
+  );
+
+  // Prefetch Paths Only Tab
+  $form['paths_only'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Prefetch Paths Only'),
+    '#description' => t('On this tab, prefetch paths setting that will override all other settings.'),
+    '#group' => 'settings',
+  );
+  $form['paths_only']['warning_message'] = array(
+    '#type' => 'markup',
+    '#prefix' => '<p>',
+    '#markup' => t('Warning: This setting negates all other settings.'),
+    '#suffix' => '</p>',
+    '#attributes' => array(
+      'class' => 'color-warning',
+      'style' => 'max-width: 600px; padding: 1rem; font-weight: bold;',
+    ),
+  );
+  $form['paths_only']['prefetch_only_paths'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Prefetch these paths only (overrides everything else)'),
+    '#description' => t('If enabled, this setting will override all other prefetch settings. <strong>Only these paths will be prefetched.</strong> Include the forward slash at the beginning of the path. Enter one value per line.'),
+    '#default_value' => $config->get('prefetch_only_paths'),
+    '#attributes' => array(
+      'style' => 'max-width: 600px;',
+    ),
   );
 
   // Polyfill tab.
@@ -192,9 +263,10 @@ function quicklink_settings_submit(&$form, $form_state) {
   $config = config('quicklink.settings');
   $debug_mode = $config->get('enable_debug_mode');
 
-  $config->set('no_load_content_types', $form_state['values']['no_load_content_types'])
+  $config->set('no_load_content_types', array_filter($form_state['values']['no_load_content_types']))
     ->set('selector', trim($form_state['values']['selector']))
     ->set('url_patterns_to_ignore', trim($form_state['values']['url_patterns_to_ignore']))
+    ->set('ignore_selectors', trim($form_state['values']['ignore_selectors']))
     ->set('prefetch_only_paths', trim($form_state['values']['prefetch_only_paths']))
     ->set('no_load_when_authenticated', $form_state['values']['no_load_when_authenticated'])
     ->set('no_load_without_page_cache', $form_state['values']['no_load_without_page_cache'])
@@ -204,6 +276,10 @@ function quicklink_settings_submit(&$form, $form_state) {
     ->set('ignore_hashes', $form_state['values']['ignore_hashes'])
     ->set('ignore_file_ext', $form_state['values']['ignore_file_ext'])
     ->set('allowed_domains', trim($form_state['values']['allowed_domains']))
+    ->set('total_request_limit', $form_state['values']['total_request_limit'])
+    ->set('concurrency_throttle_limit', $form_state['values']['concurrency_throttle_limit'])
+    ->set('viewport_delay', $form_state['values']['viewport_delay'])
+    ->set('idle_wait_timeout', $form_state['values']['idle_wait_timeout'])
     ->set('load_polyfill', $form_state['values']['load_polyfill'])
     ->set('enable_debug_mode', $form_state['values']['enable_debug_mode'])
     ->save();
