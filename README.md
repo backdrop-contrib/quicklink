@@ -15,8 +15,8 @@ Quicklink:
 
 1. Download the Backdrop module and extract it to your modules folder.
 
-By default this module will load the Quicklink JavaScript library from a CDN at
-`https://unpkg.com/quicklink@2.3.0/dist/quicklink.umd.js`.
+By default this module will load the Quicklink JavaScript library from a local
+copy from a CDN `https://unpkg.com/quicklink@2.3.0/dist/quicklink.umd.js`.
 
 ## How do I access the Quicklink admin interface?
 
@@ -27,11 +27,7 @@ The Quicklink module admin interface is located at
 
 ## What browsers does this support?
 
-Without polyfills:
-Chrome, Firefox, Safari, and Edge.
-
-With [Intersection Observer polyfill](https://github.com/w3c/IntersectionObserver/tree/master/polyfill):
-Internet Explorer.
+Chromium-based browsers, Firefox, and Safari.
 
 ## How to ignore certain links
 
