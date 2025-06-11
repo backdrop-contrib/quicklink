@@ -16,7 +16,7 @@ Quicklink:
 1. Download the Backdrop module and extract it to your modules folder.
 
 By default this module will load the Quicklink JavaScript library from a CDN at
-`https://unpkg.com/quicklink@1.0.1/dist/quicklink.umd.js`.
+`https://unpkg.com/quicklink@2.3.0/dist/quicklink.umd.js`.
 
 ## How do I access the Quicklink admin interface?
 
@@ -43,17 +43,16 @@ the library not to prefetch this link.
 
 ## Issues
 
-To submit bug reports and feature suggestions, or to track changes:
-  http://github.com/backdrop-contrib/quicklink/issues
+To [submit bug reports and feature suggestions, or to track changes](http://github.com/backdrop-contrib/quicklink/issues).
 
 ## Current Maintainers
 
-* Herb v/d Dool (https://github.com/herbdool/)
+* [Herb v/d Dool](https://github.com/herbdool/)
 * Seeking additional maintainers.
 
 ## Credits
 
-* Ported to Backdrop by Herb v/d Dool (https://github.com/herbdool/)
+* Ported to Backdrop by [Herb v/d Dool](https://github.com/herbdool/)
 * Originally developed for Drupal by [mherchel](https://www.drupal.org/u/mherchel)
 
 ## License
