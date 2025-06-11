@@ -32,6 +32,26 @@
           })(i, pattern);
         }
 
+        // Loop through all the "ignore selectors", and generate rules.
+        if (settings.quicklink.ignore_selectors) {
+          for (var i = 0; i < settings.quicklink.ignore_selectors.length; i++) {
+            var pattern = settings.quicklink.ignore_selectors[i];
+
+            (function (i, pattern) {
+              if (pattern.length) {
+                quicklinkConfig.ignores.push(function (uri, elem) {
+                  var ruleName = 'Element matches custom selectors within "ignore selectors" array. See log.';
+                  var ruleFunc = elem.matches(pattern);
+
+                  outputDebugInfo(ruleFunc, ruleName, uri, elem, pattern);
+
+                  return ruleFunc;
+                });
+              }
+            })(i, pattern);
+          }
+        }
+
         if (settings.quicklink.ignore_admin_paths) {
           var adminLinkContainerPatterns = settings.quicklink.admin_link_container_patterns.join();
 
@@ -74,6 +94,22 @@
 
             return ruleFunc;
           });
+        }
+
+        if (settings.quicklink.total_request_limit) {
+          quicklinkConfig.limit = parseInt(settings.quicklink.total_request_limit);
+        }
+
+        if (settings.quicklink.concurrency_throttle_limit) {
+          quicklinkConfig.throttle = parseInt(settings.quicklink.concurrency_throttle_limit);
+        }
+
+        if (settings.quicklink.idle_wait_timeout) {
+          quicklinkConfig.timeout = parseInt(settings.quicklink.idle_wait_timeout);
+        }
+
+        if (settings.quicklink.viewport_delay) {
+          quicklinkConfig.delay = parseInt(settings.quicklink.viewport_delay);
         }
 
         quicklinkConfig.ignores.push(function (uri, elem) {
@@ -148,7 +184,17 @@
       }
 
       if (loadQuicklink()) {
-        quicklink(settings.quicklink.quicklinkConfig);
+        if (settings.quicklink.prefetch_only_paths) {
+          quicklink.prefetch(settings.quicklink.prefetch_only_paths);
+        }
+        else {
+          try {
+            quicklink.listen(settings.quicklink.quicklinkConfig);
+          }
+          catch (err) {
+            console.error('quicklink.listen is not found. Please verify you are running version 2 of the Quicklink library.', err);
+          }
+        }
       }
     }
   };

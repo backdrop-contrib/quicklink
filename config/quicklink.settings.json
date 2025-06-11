@@ -13,5 +13,10 @@
   "selector": "",
   "allowed_domains": "",
   "prefetch_only_paths": "",
-  "enable_debug_mode": 0
+  "enable_debug_mode": 0,
+  "ignore_selectors": "",
+  "total_request_limit": 0,
+  "concurrency_throttle_limit": 0,
+  "idle_wait_timeout": 2000,
+  "viewport_delay": 0
 }
