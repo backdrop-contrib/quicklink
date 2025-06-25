@@ -41,7 +41,7 @@ function quicklink_permission() {
 function quicklink_config_info() {
   $prefixes['quicklink.settings'] = array(
     'label' => t('Quicklink settings'),
-    'group' => t('Performance'),
+    'group' => t('Configuration'),
   );
 
   return $prefixes;
